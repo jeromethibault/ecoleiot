@@ -9,8 +9,8 @@ app = Flask(__name__)
        
 @app.route('/book', methods=['GET'])
 def getBooks():
-    # TODO
-    return
+    results = findAll()
+    return jsonify(results)
 
 @app.route('/book', methods=['POST'])
 def saveBook():

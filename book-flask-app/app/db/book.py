@@ -19,8 +19,13 @@ def dict_factory(cursor, row):
     return d
 
 def findAll():
-    # TODO
-    return
+    conn = sqlite3.connect('book.db')
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM book")
+    rows = cur.fetchall()
+    conn.close()
+    return rows
 
 def save(name,author):
     # TODO
