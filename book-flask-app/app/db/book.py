@@ -28,8 +28,11 @@ def findAll():
     return rows
 
 def save(name,author):
-    # TODO
-    return
+    conn = sqlite3.connect('book.db')
+    cur = conn.cursor()
+    cur.execute('INSERT INTO book (name,author) values (\'{}\', \'{}\')'.format(name,author))
+    conn.commit()
+    conn.close()
 
 def delete(id):
     # TODO

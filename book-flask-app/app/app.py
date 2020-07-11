@@ -4,6 +4,7 @@ from flask import (
 from db.book import (
     findAll, save, delete, update
 )
+from flask_restplus import Api, Resource, reqparse, fields
 
 app = Flask(__name__)
        
@@ -12,15 +13,35 @@ def getBooks():
     results = findAll()
     return jsonify(results)
 
-@app.route('/book', methods=['POST'])
-def saveBook():
-    # TODO
-    return
+api = Api(app, version='1.0', title='Books API',
+    description='A simple Books API',
+)
+ns_books = api.namespace('books', description='Books operations')
 
-@app.route('/book', methods=['DELETE'])
-def deleteBook():
-    # TODO
-    return
+book_definition = api.model('Book Informations', {
+    'name': fields.String(required=True),
+    'author': fields.String(required=True)
+})
+
+@ns_books.route("/")
+class books(Resource):
+
+    def get(self):
+        results = findAll()
+        return jsonify(results)
+    
+    @api.expect(book_definition)
+    def post(self):
+        data = request.get_json()
+        print(data.get('name'))
+        print(data.get('author'))
+        save(data.get('name'), data.get('author'))
+        resp = jsonify(success=True)
+        return resp
+    
+    def delete(self):
+        # TODO
+        return
 
 @app.route('/book', methods=['PUT'])
 def updateBook():
