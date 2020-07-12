@@ -35,9 +35,15 @@ def save(name,author):
     conn.close()
 
 def delete(id):
-    # TODO
-    return
+    conn = sqlite3.connect('book.db')
+    cur = conn.cursor()
+    cur.execute('DELETE FROM book WHERE id={}'.format(id))
+    conn.commit()
+    conn.close()
 
 def update(id,name,author):
-    # TODO
-    return
+    conn = sqlite3.connect('book.db')
+    cur = conn.cursor()
+    cur.execute('UPDATE book SET name=\'{}\', author=\'{}\' WHERE id={}'.format(name,author,id))
+    conn.commit()
+    conn.close()

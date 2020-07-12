@@ -31,8 +31,6 @@ class books(Resource):
     @api.expect(book_definition)
     def post(self):
         data = request.get_json()
-        print(data.get('name'))
-        print(data.get('author'))
         save(data.get('name'), data.get('author'))
         resp = jsonify(success=True)
         return resp
@@ -44,8 +42,12 @@ class books(Resource):
         resp = jsonify(success=True)
         return resp
 
+    @api.expect(books_id_arguments,book_definition)
     def put(self):
-        # TODO
-        return    
-    
+        id = books_id_arguments.parse_args(request)
+        data = request.get_json()
+        update(id.get('id'), data.get('name'), data.get('author'))
+        resp = jsonify(success=True)
+        return resp   
+          
 app.run()
