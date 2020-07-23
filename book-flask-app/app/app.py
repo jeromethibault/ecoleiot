@@ -1,12 +1,18 @@
 from flask import (
     Flask,jsonify,request
 )
-from db.book import (
-    findAll, save, delete, update
-)
 from flask_restplus import Api, Resource, reqparse, fields
+from models import Book, db
+
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///book.db'
+# initialize the database connection
+db.init_app(app)
+# create model
+with app.app_context():
+    db.create_all()
+    db.session.commit()
 
 api = Api(app, version='1.0', title='Books API',
     description='A simple Books API',
@@ -21,24 +27,35 @@ book_definition = api.model('Book Informations', {
     'author': fields.String(required=True)
 })
 
+def row2dict(row):
+    d = {}
+    for column in row.__table__.columns:
+        d[column.name] = str(getattr(row, column.name))
+
+    return d
+
 @ns_books.route("/")
 class books(Resource):
 
     def get(self):
-        results = findAll()
-        return jsonify(results)
+        books = Book.query.all()
+        return jsonify([row2dict(book) for book in books])
     
     @api.expect(book_definition)
     def post(self):
         data = request.get_json()
-        save(data.get('name'), data.get('author'))
+        book = Book(data.get('name'), data.get('author'))
+        db.session.add(book)
+        db.session.commit()
         resp = jsonify(success=True)
         return resp
     
     @api.expect(books_id_arguments)
     def delete(self):
         data = books_id_arguments.parse_args(request)
-        delete(data.get('id'))
+        book = Book.query.get(data.get('id'))
+        db.session.delete(book)
+        db.session.commit()
         resp = jsonify(success=True)
         return resp
 
@@ -46,7 +63,10 @@ class books(Resource):
     def put(self):
         id = books_id_arguments.parse_args(request)
         data = request.get_json()
-        update(id.get('id'), data.get('name'), data.get('author'))
+        book = Book.query.get(id)
+        book.title = data.get('name')
+        book.author = data.get('author')
+        db.session.commit()
         resp = jsonify(success=True)
         return resp   
           
