@@ -30,20 +30,21 @@ def findAll():
 def save(name,author):
     conn = sqlite3.connect('book.db')
     cur = conn.cursor()
-    cur.execute('INSERT INTO book (name,author) values (\'{}\', \'{}\')'.format(name,author))
+    t=(name,author)
+    cur.execute('INSERT INTO book (name,author) values (?, ?)',t)
     conn.commit()
     conn.close()
 
 def delete(id):
     conn = sqlite3.connect('book.db')
     cur = conn.cursor()
-    cur.execute('DELETE FROM book WHERE id={}'.format(id))
+    cur.execute('DELETE FROM book WHERE id=?',(id,))
     conn.commit()
     conn.close()
 
 def update(id,name,author):
     conn = sqlite3.connect('book.db')
     cur = conn.cursor()
-    cur.execute('UPDATE book SET name=\'{}\', author=\'{}\' WHERE id={}'.format(name,author,id))
+    cur.execute('UPDATE book SET name=?, author=? WHERE id=?',(name,author,id))
     conn.commit()
     conn.close()
